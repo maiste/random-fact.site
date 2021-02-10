@@ -6114,11 +6114,11 @@ var $elm$http$Http$get = function (r) {
 var $author$project$Main$init = F3(
 	function (_v0, url, key) {
 		return _Utils_Tuple2(
-			A3($author$project$Main$Model, key, url, ''),
+			A3($author$project$Main$Model, key, url, 'LOADING PAGE...'),
 			$elm$http$Http$get(
 				{
 					expect: $elm$http$Http$expectString($author$project$Main$GotText),
-					url: '/api/about'
+					url: '/api/random'
 				}));
 	});
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -6127,8 +6127,6 @@ var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
 var $elm$browser$Browser$Navigation$load = _Browser_load;
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
@@ -6174,74 +6172,96 @@ var $elm$url$Url$toString = function (url) {
 					_Utils_ap(http, url.host)),
 				url.path)));
 };
+var $author$project$Main$link_clinked = F2(
+	function (model, urlRequest) {
+		if (urlRequest.$ === 'Internal') {
+			var url = urlRequest.a;
+			return _Utils_Tuple2(
+				model,
+				A2(
+					$elm$browser$Browser$Navigation$pushUrl,
+					model.key,
+					$elm$url$Url$toString(url)));
+		} else {
+			var href = urlRequest.a;
+			return _Utils_Tuple2(
+				model,
+				$elm$browser$Browser$Navigation$load(href));
+		}
+	});
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$treat_error = function (e) {
+	switch (e.$) {
+		case 'BadUrl':
+			var u = e.a;
+			return 'BadUrl ' + u;
+		case 'Timeout':
+			return 'Timeout';
+		case 'BadStatus':
+			var i = e.a;
+			return 'Status' + $elm$core$String$fromInt(i);
+		case 'NetworkError':
+			return 'Network';
+		default:
+			var b = e.a;
+			return 'Badbody ' + b;
+	}
+};
+var $author$project$Main$rcv_txt = F2(
+	function (model, result) {
+		if (result.$ === 'Ok') {
+			var fullText = result.a;
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{content: fullText}),
+				$elm$core$Platform$Cmd$none);
+		} else {
+			var e = result.a;
+			var strError = $author$project$Main$treat_error(e);
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{content: strError}),
+				$elm$core$Platform$Cmd$none);
+		}
+	});
+var $author$project$Main$get_api_path = function (url) {
+	return '/api' + url.path;
+};
+var $author$project$Main$url_changed = F2(
+	function (model, url) {
+		var new_url = $author$project$Main$get_api_path(url);
+		return _Utils_Tuple2(
+			_Utils_update(
+				model,
+				{url: url}),
+			$elm$http$Http$get(
+				{
+					expect: $elm$http$Http$expectString($author$project$Main$GotText),
+					url: new_url
+				}));
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'LinkClicked':
 				var urlRequest = msg.a;
-				if (urlRequest.$ === 'Internal') {
-					var url = urlRequest.a;
-					return _Utils_Tuple2(
-						model,
-						A2(
-							$elm$browser$Browser$Navigation$pushUrl,
-							model.key,
-							$elm$url$Url$toString(url)));
-				} else {
-					var href = urlRequest.a;
-					return _Utils_Tuple2(
-						model,
-						$elm$browser$Browser$Navigation$load(href));
-				}
+				return A2($author$project$Main$link_clinked, model, urlRequest);
 			case 'UrlChanged':
 				var url = msg.a;
-				var new_url = $elm$url$Url$toString(url);
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{url: url}),
-					$elm$http$Http$get(
-						{
-							expect: $elm$http$Http$expectString($author$project$Main$GotText),
-							url: new_url
-						}));
+				return A2($author$project$Main$url_changed, model, url);
 			default:
 				var result = msg.a;
-				if (result.$ === 'Ok') {
-					var fullText = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{content: fullText}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var e = result.a;
-					var strError = function () {
-						switch (e.$) {
-							case 'BadUrl':
-								var u = e.a;
-								return 'BadUrl ' + u;
-							case 'Timeout':
-								return 'Timeout';
-							case 'BadStatus':
-								var i = e.a;
-								return 'Status' + $elm$core$String$fromInt(i);
-							case 'NetworkError':
-								return 'Network';
-							default:
-								var b = e.a;
-								return 'Badbody ' + b;
-						}
-					}();
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{content: strError}),
-						$elm$core$Platform$Cmd$none);
-				}
+				return A2($author$project$Main$rcv_txt, model, result);
 		}
 	});
-var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -6250,30 +6270,185 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			key,
 			$elm$json$Json$Encode$string(string));
 	});
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $author$project$Main$view_div = F2(
+	function (name, content) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id(name)
+				]),
+			content);
+	});
+var $author$project$Main$view_about = function (model) {
+	return A2(
+		$author$project$Main$view_div,
+		'about',
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(model.content)
+					]))
+			]));
+};
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
+var $author$project$Main$view_error = function (model) {
+	return A2(
+		$author$project$Main$view_div,
+		'error',
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$h2,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Error')
+					])),
+				$elm$html$Html$text(model.content)
+			]));
+};
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $author$project$Main$gen_url_change = F2(
+	function (url, new_path) {
+		var new_url = _Utils_update(
+			url,
+			{path: new_path});
+		return $author$project$Main$UrlChanged(new_url);
+	});
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $author$project$Main$view_random = function (model) {
+	return A2(
+		$author$project$Main$view_div,
+		'random',
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(model.content)
+					])),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick(
+						A2($author$project$Main$gen_url_change, model.url, '/random'))
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('New')
+					]))
+			]));
+};
+var $author$project$Main$view_content = function (model) {
+	var _v0 = model.url.path;
+	switch (_v0) {
+		case '/':
+			return $author$project$Main$view_random(model);
+		case '/random':
+			return $author$project$Main$view_random(model);
+		case '/about':
+			return $author$project$Main$view_about(model);
+		default:
+			return $author$project$Main$view_error(model);
+	}
+};
+var $elm$html$Html$nav = _VirtualDom_node('nav');
+var $elm$html$Html$ul = _VirtualDom_node('ul');
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $author$project$Main$get_name_from_path = function (fulPath) {
+	switch (fulPath) {
+		case '/random':
+			return 'Random';
+		case '/about':
+			return 'About';
+		default:
+			return 'Error';
+	}
+};
 var $elm$html$Html$Attributes$href = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
 		'href',
 		_VirtualDom_noJavaScriptUri(url));
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$view = function (model) {
-	return {
-		body: _List_fromArray(
+var $elm$html$Html$li = _VirtualDom_node('li');
+var $author$project$Main$view_link = function (path) {
+	var name = $author$project$Main$get_name_from_path(path);
+	return A2(
+		$elm$html$Html$li,
+		_List_Nil,
+		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$a,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$href('/api/random')
+						$elm$html$Html$Attributes$href(path)
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Random')
+						$elm$html$Html$text(name)
+					]))
+			]));
+};
+var $author$project$Main$view_nav = A2(
+	$elm$html$Html$nav,
+	_List_Nil,
+	_List_fromArray(
+		[
+			A2(
+			$elm$html$Html$ul,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$author$project$Main$view_link('/random'),
+					$author$project$Main$view_link('/about')
+				]))
+		]));
+var $author$project$Main$view = function (model) {
+	return {
+		body: _List_fromArray(
+			[
+				A2(
+				$elm$html$Html$h1,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Lorna\'s Random Facts')
 					])),
-				$elm$html$Html$text('The current URL is: '),
-				$elm$html$Html$text(model.content)
+				$author$project$Main$view_nav,
+				A2(
+				$author$project$Main$view_div,
+				'app',
+				_List_fromArray(
+					[
+						$author$project$Main$view_content(model)
+					]))
 			]),
 		title: 'Page'
 	};
