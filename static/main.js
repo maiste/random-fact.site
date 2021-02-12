@@ -6439,7 +6439,7 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Lorna\'s Random Facts')
+						$elm$html$Html$text('Random Facts')
 					])),
 				$author$project$Main$view_nav,
 				A2(

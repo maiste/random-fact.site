@@ -170,7 +170,7 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Page"
     , body =
-        [ h1 [] [ text "Lorna's Random Facts" ]
+        [ h1 [] [ text "Random Facts" ]
         , view_nav
         , view_div "app"
             [ view_content model
